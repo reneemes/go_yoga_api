@@ -22,6 +22,11 @@ type Service interface {
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close() error
+
+	DB() *sql.DB
+	// DB returns the underlying *sql.DB instance for direct access.
+	// This is useful for executing raw SQL queries or transactions.
+	// It should be used with caution, as it bypasses the service's abstraction layer.
 }
 
 type service struct {
@@ -30,7 +35,7 @@ type service struct {
 
 var (
 	database   = os.Getenv("BLUEPRINT_DB_DATABASE")
-	password   = os.Getenv("BLUEPRINT_DB_PASSWORD")
+	// password   = os.Getenv("BLUEPRINT_DB_PASSWORD")
 	username   = os.Getenv("BLUEPRINT_DB_USERNAME")
 	port       = os.Getenv("BLUEPRINT_DB_PORT")
 	host       = os.Getenv("BLUEPRINT_DB_HOST")
@@ -43,11 +48,20 @@ func New() Service {
 	if dbInstance != nil {
 		return dbInstance
 	}
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database, schema)
+	// connStr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database, schema)
+	// If using a db password ^
+	connStr := fmt.Sprintf("postgres://%s@%s:%s/%s?sslmode=disable&search_path=%s", username, host, port, database, schema)
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	// ^ Testing connection to the database
+	log.Printf("Connected to database: %s", database)
+
 	dbInstance = &service{
 		db: db,
 	}
@@ -112,4 +126,8 @@ func (s *service) Health() map[string]string {
 func (s *service) Close() error {
 	log.Printf("Disconnected from database: %s", database)
 	return s.db.Close()
+}
+
+func (s *service) DB() *sql.DB {
+	return s.db
 }
