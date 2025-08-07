@@ -11,24 +11,52 @@ import (
 
 func GetAllRoutinesHandler(c *gin.Context) {
 	db := database.New()
-	rows, err := db.DB().Query("SELECT id, name, description, difficulty FROM routines")
+
+	// Get all routines
+	routineRows, err := db.DB().Query("SELECT id, name, description, difficulty FROM routines")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to fetch routines",
 		})
 		return
 	}
-	defer rows.Close()
+	defer routineRows.Close()
 
 	var routines []types.Routine
-	for rows.Next() {
+	for routineRows.Next() {
 		var r types.Routine
-		if err := rows.Scan(&r.ID, &r.Name, &r.Description, &r.Difficulty); err != nil {
+		if err := routineRows.Scan(&r.ID, &r.Name, &r.Description, &r.Difficulty); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Failed to scan routines",
 			})
 			return
 		}
+		// Get routine poses for this routine
+		poseQuery := `
+			SELECT p.id, p.name, p.sanskrit_name, p.translation_name, p.description, p.image_url
+			FROM routine_poses rp
+			JOIN poses p ON p.id = rp.pose_id
+			WHERE rp.routine_id = $1
+		`
+
+		poseRows, err := db.DB().Query(poseQuery, r.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch poses for routine"})
+			return
+		}
+
+		var poses []types.Pose
+		for poseRows.Next() {
+			var p types.Pose
+			if err := poseRows.Scan(&p.ID, &p.Name, &p.SanskritName, &p.TranslationName, &p.Description, &p.ImageURL); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan pose"})
+				return
+			}
+			poses = append(poses, p)
+		}
+		poseRows.Close()
+
+		r.RoutinePoses = poses
 		routines = append(routines, r)
 	}
 
