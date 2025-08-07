@@ -22,6 +22,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/health", s.healthHandler)
 
 	r.GET("/api/v1/poses", handler.GetAllPosesHandler)
+	r.GET("/api/v1/poses/:id", handler.GetOnePoseHandler)
+
+	r.GET("/api/v1/routines", handler.GetAllRoutinesHandler)
+	r.GET("/api/v1/routines/:id", handler.GetOneRoutineHandler)
 
 	return r
 }
