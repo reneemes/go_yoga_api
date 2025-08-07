@@ -14,7 +14,7 @@ import (
 func mustStartPostgresContainer() (func(context.Context, ...testcontainers.TerminateOption) error, error) {
 	var (
 		dbName = "database"
-		dbPwd  = "password"
+		// dbPwd  = "password"
 		dbUser = "user"
 	)
 
@@ -23,7 +23,7 @@ func mustStartPostgresContainer() (func(context.Context, ...testcontainers.Termi
 		"postgres:latest",
 		postgres.WithDatabase(dbName),
 		postgres.WithUsername(dbUser),
-		postgres.WithPassword(dbPwd),
+		// postgres.WithPassword(dbPwd),
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
 				WithOccurrence(2).
@@ -34,7 +34,7 @@ func mustStartPostgresContainer() (func(context.Context, ...testcontainers.Termi
 	}
 
 	database = dbName
-	password = dbPwd
+	// password = dbPwd
 	username = dbUser
 
 	dbHost, err := dbContainer.Host(context.Background())
