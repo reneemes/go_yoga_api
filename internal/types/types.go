@@ -10,10 +10,10 @@ type Pose struct {
 	ImageURL 				string `json:"image_url"`
 
 	// One Pose can appear in many RoutinePoses
-	RoutinePoses []RoutinePose `gorm:"foreignKey:PoseID"`
+	// RoutinePoses []RoutinePose `gorm:"foreignKey:PoseID"`
 
 	// Many-to-many link via RoutinePoses
-	Routines []Routine `gorm:"many2many:routine_poses;joinForeignKey:PoseID;joinReferences:RoutineID"`
+	// Routines []Routine `gorm:"many2many:routine_poses;joinForeignKey:PoseID;joinReferences:RoutineID"`
 }
 
 type Routine struct {
@@ -23,10 +23,10 @@ type Routine struct {
 	Difficulty 		string 	`json:"difficulty"`
 
 	// One Routine can have many RoutinePoses
-	RoutinePoses []Pose `json:"routine_poses" gorm:"many2many:routine_poses;joinForeignKey:RoutineID;joinReferences:PoseID"`
+	// RoutinePoses []RoutinePose `gorm:"foreignKey:RoutineID"`
 
 	// Many-to-many link via RoutinePoses
-	// Poses []Pose `gorm:"many2many:routine_poses;joinForeignKey:RoutineID;joinReferences:PoseID"`
+	RoutinePoses []Pose `json:"routine_poses" gorm:"many2many:routine_poses;joinForeignKey:RoutineID;joinReferences:PoseID"`
 }
 
 type RoutinePose struct {

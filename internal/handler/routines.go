@@ -14,7 +14,7 @@ func GetAllRoutinesHandler(c *gin.Context) {
 	db := dbService.DB()
 
 	var routines []types.Routine
-	if err := db.Preload("Poses").Find(&routines).Error; err != nil {
+	if err := db.Preload("RoutinePoses").Find(&routines).Error; err != nil {
 	// .Preload("Poses") loads the associated poses via the many2many relationship
 	// .Find(&routines) retrieves all routines
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -33,7 +33,7 @@ func GetOneRoutineHandler(c *gin.Context) {
 	id := c.Param("id")
 
 	var routine types.Routine
-	if err := db.Preload("Poses").First(&routine, id).Error; err != nil {
+	if err := db.Preload("RoutinePoses").First(&routine, id).Error; err != nil {
 	// .First(&routine, id) retrieves the routine by ID
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "Routine not found",

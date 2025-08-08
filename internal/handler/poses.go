@@ -45,7 +45,14 @@ func GetOnePoseHandler(c *gin.Context) {
     "data": gin.H{
 			"id": pose.ID,
 			"type": "pose",
-			"attributes": pose,
+			"attributes": gin.H{
+				"name": pose.Name,
+				"sanskrit_name": pose.SanskritName,
+				"translation_name": pose.TranslationName,
+				"description": pose.Description,
+				"pose_benefits": pose.PoseBenefits,
+				"image_url": pose.ImageURL,
+			},
     },
 	})
 }
