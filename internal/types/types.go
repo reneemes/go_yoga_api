@@ -1,7 +1,7 @@
 package types
 
 type Pose struct {
-	ID   						int    `json:"id"`
+	ID   						int    `json:"id" gorm:"primaryKey"`
 	Name 						string `json:"name"`
 	SanskritName 		string `json:"sanskrit_name"`
 	TranslationName string `json:"translation_name"`
@@ -11,7 +11,7 @@ type Pose struct {
 }
 
 type Routine struct {
-	ID          	int    	`json:"id"`
+	ID          	int    	`json:"id" gorm:"primaryKey"`
 	Name					string	`json:"name"`
 	Description 	string 	`json:"description"`
 	Difficulty 		string 	`json:"difficulty"`

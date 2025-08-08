@@ -2,14 +2,19 @@ package database
 
 import (
 	"context"
-	"database/sql"
+	// "database/sql"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
+	"go_yoga_api/internal/types"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	// _ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -23,14 +28,14 @@ type Service interface {
 	// It returns an error if the connection cannot be closed.
 	Close() error
 
-	DB() *sql.DB
+	DB() *gorm.DB
 	// DB returns the underlying *sql.DB instance for direct access.
 	// This is useful for executing raw SQL queries or transactions.
 	// It should be used with caution, as it bypasses the service's abstraction layer.
 }
 
 type service struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
 var (
@@ -51,16 +56,23 @@ func New() Service {
 	// connStr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database, schema)
 	// If using a db password ^
 	connStr := fmt.Sprintf("postgres://%s@%s:%s/%s?sslmode=disable&search_path=%s", username, host, port, database, schema)
-	db, err := sql.Open("pgx", connStr)
+	// db, err := sql.Open("pgx", connStr)
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := db.Ping(); err != nil {
+	sqlDB, err := db.DB()
+	if err != nil {
+			log.Fatal(err)
+	}
+	if err := sqlDB.Ping(); err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	// ^ Testing connection to the database
 	log.Printf("Connected to database: %s", database)
+
+	db.AutoMigrate((&types.Pose{}), (&types.Routine{}))
 
 	dbInstance = &service{
 		db: db,
@@ -76,12 +88,17 @@ func (s *service) Health() map[string]string {
 
 	stats := make(map[string]string)
 
-	// Ping the database
-	err := s.db.PingContext(ctx)
+	sqlDB, err := s.db.DB()
 	if err != nil {
 		stats["status"] = "down"
+		stats["error"] = fmt.Sprintf("db unwrap error: %v", err)
+		return stats
+	}
+
+	// Ping the database
+	if err := sqlDB.PingContext(ctx); err != nil {
+		stats["status"] = "down"
 		stats["error"] = fmt.Sprintf("db down: %v", err)
-		log.Fatalf("db down: %v", err) // Log the error and terminate the program
 		return stats
 	}
 
@@ -90,7 +107,7 @@ func (s *service) Health() map[string]string {
 	stats["message"] = "It's healthy"
 
 	// Get database stats (like open connections, in use, idle, etc.)
-	dbStats := s.db.Stats()
+	dbStats := sqlDB.Stats()
 	stats["open_connections"] = strconv.Itoa(dbStats.OpenConnections)
 	stats["in_use"] = strconv.Itoa(dbStats.InUse)
 	stats["idle"] = strconv.Itoa(dbStats.Idle)
@@ -124,10 +141,14 @@ func (s *service) Health() map[string]string {
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
 func (s *service) Close() error {
+	sqlDB, err := s.db.DB()
+	if err != nil {
+		return err
+	}
 	log.Printf("Disconnected from database: %s", database)
-	return s.db.Close()
+	return sqlDB.Close()
 }
 
-func (s *service) DB() *sql.DB {
+func (s *service) DB() *gorm.DB {
 	return s.db
 }
