@@ -3,6 +3,14 @@
 YogaFlow is a user-friendly web application designed to create a seamless and engaging experience for yoga enthusiasts. It aims to provide users with the tools to manage their yoga practice and explore additional resources for personal well-being. </br>
 This project was initially created and is currently deployed as a Ruby on Rails API. The purpose of this application is to get familiar with Go, Gin, and GORM.
 
+## Links
+Rails Repo: https://github.com/reneemes/yoga_flow_be </br>
+Deployed Rails API: https://yoga-flow-7a813c31e5f1.herokuapp.com </br>
+
+
+Angular Front End: https://github.com/reneemes/yoga-flow-fe </br>
+Deployed Application: https://yogaflow-app.netlify.app/ </br>
+
 ## API Documentation
 
 ### GET All Poses
