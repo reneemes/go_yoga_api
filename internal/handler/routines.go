@@ -1,7 +1,6 @@
 package handler
 
 import (
-	// "fmt"
 	"net/http"
 	"go_yoga_api/internal/database"
 	"go_yoga_api/internal/types"
@@ -17,7 +16,7 @@ func GetAllRoutinesHandler(c *gin.Context) {
 
 	var routines []types.Routine
 	if err := db.Preload("RoutinePoses").Find(&routines).Error; err != nil {
-	// .Preload("Poses") loads the associated poses via the many2many relationship
+	// .Preload("RoutinePoses") loads the associated poses via the many2many relationship
 	// .Find(&routines) retrieves all routines
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to fetch routines",

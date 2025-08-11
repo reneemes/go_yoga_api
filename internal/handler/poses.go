@@ -1,14 +1,11 @@
 package handler
 
 import (
-	// "fmt"
 	"go_yoga_api/internal/database"
 	"go_yoga_api/internal/types"
-	// "log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	// ^ Import the database package to access the service
 )
 
 func GetAllPosesHandler(c *gin.Context) {
@@ -42,17 +39,6 @@ func GetOnePoseHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-    "data": gin.H{
-			"id": pose.ID,
-			"type": "pose",
-			"attributes": gin.H{
-				"name": pose.Name,
-				"sanskrit_name": pose.SanskritName,
-				"translation_name": pose.TranslationName,
-				"description": pose.Description,
-				"pose_benefits": pose.PoseBenefits,
-				"image_url": pose.ImageURL,
-			},
-    },
+		"data": pose,
 	})
 }

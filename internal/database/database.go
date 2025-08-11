@@ -55,8 +55,7 @@ func New() Service {
 	if dbInstance != nil {
 		return dbInstance
 	}
-	// connStr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database, schema)
-	// If using a db password ^
+
 	connStr := fmt.Sprintf("postgres://%s@%s:%s/%s?sslmode=disable&search_path=%s", username, host, port, database, schema)
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
