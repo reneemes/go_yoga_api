@@ -40,6 +40,8 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 func main() {
 
 	server := server.NewServer()
+	// ^ create a new server instance from server.go
+	// It starts listening for requests on the specified port 8080
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
