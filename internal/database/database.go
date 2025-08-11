@@ -28,15 +28,17 @@ type Service interface {
 	// It returns an error if the connection cannot be closed.
 	Close() error
 
+	// DB returns the underlying *gorm.DB instance for direct access.
 	DB() *gorm.DB
-	// DB returns the underlying *sql.DB instance for direct access.
-	// This is useful for executing raw SQL queries or transactions.
-	// It should be used with caution, as it bypasses the service's abstraction layer.
 }
 
 type service struct {
 	db *gorm.DB
+	// ^ Pointer to gorm.DB
 }
+// Pointers — a variable that stores the memory address of another variable
+// Instead of holding a value directly, it "points" to the location in memory
+// where that value resides
 
 var (
 	database   = os.Getenv("BLUEPRINT_DB_DATABASE")
@@ -56,7 +58,6 @@ func New() Service {
 	// connStr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database, schema)
 	// If using a db password ^
 	connStr := fmt.Sprintf("postgres://%s@%s:%s/%s?sslmode=disable&search_path=%s", username, host, port, database, schema)
-	// db, err := sql.Open("pgx", connStr)
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
@@ -137,9 +138,6 @@ func (s *service) Health() map[string]string {
 }
 
 // Close closes the database connection.
-// It logs a message indicating the disconnection from the specific database.
-// If the connection is successfully closed, it returns nil.
-// If an error occurs while closing the connection, it returns the error.
 func (s *service) Close() error {
 	sqlDB, err := s.db.DB()
 	if err != nil {
@@ -149,6 +147,9 @@ func (s *service) Close() error {
 	return sqlDB.Close()
 }
 
+// Function named DB()
+// (s *service) is the receiver. The function belongs to *service struct (private one)
+// *gorm.Db is the return type, which is a pointer to a gorm.DB instance
 func (s *service) DB() *gorm.DB {
 	return s.db
 }

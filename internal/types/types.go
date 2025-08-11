@@ -16,6 +16,9 @@ type Routine struct {
 	Description 	string 	`json:"description"`
 	Difficulty 		string 	`json:"difficulty"`
 
-	// One Routine has many RoutinePoses
+	// A routine has many poses (through routine_poses)
+	// A pose can be in many routines (through routine_poses)
 	RoutinePoses []Pose `json:"routine_poses" gorm:"many2many:routine_poses;"`
+	// Because we are using AutoMigrate() in the database,
+	// a joins table (Routine_Poses) is created for us
 }

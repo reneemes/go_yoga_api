@@ -11,7 +11,9 @@ import (
 
 func GetAllRoutinesHandler(c *gin.Context) {
 	dbService := database.New()
+	// ^ new database connection
 	db := dbService.DB()
+	// ^ gorm DB instance
 
 	var routines []types.Routine
 	if err := db.Preload("RoutinePoses").Find(&routines).Error; err != nil {
