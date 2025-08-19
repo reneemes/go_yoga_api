@@ -25,6 +25,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.GET("/api/v1/poses", handler.GetAllPosesHandler)
 	r.GET("/api/v1/poses/:id", handler.GetOnePoseHandler)
+	// Using gin you can extract the ID param, c.Param("id") in the handler or below
 
 	r.GET("/api/v1/routines", handler.GetAllRoutinesHandler)
 	r.GET("/api/v1/routines/:id", handler.GetOneRoutineHandler)

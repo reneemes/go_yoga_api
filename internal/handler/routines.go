@@ -15,34 +15,36 @@ func GetAllRoutinesHandler(c *gin.Context) {
 	// ^ gorm DB instance
 
 	var routines []types.Routine
-	if err := db.Preload("RoutinePoses").Find(&routines).Error; err != nil {
+	result := db.Preload("RoutinePoses").Find(&routines)
 	// .Preload("RoutinePoses") loads the associated poses via the many2many relationship
 	// .Find(&routines) retrieves all routines
+
+	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to fetch routines",
+			"error": "Failed to fetch poses",
 		})
-		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"data": routines,
+		})
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"data": routines,
-	})
 }
 
 func GetOneRoutineHandler(c *gin.Context) {
 	dbService := database.New()
 	db := dbService.DB()
-	id := c.Param("id")
 
 	var routine types.Routine
-	if err := db.Preload("RoutinePoses").First(&routine, id).Error; err != nil {
-	// .First(&routine, id) retrieves the routine by ID
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Routine not found",
-		})
-		return
-	}
+	result := db.Preload("RoutinePoses").First(&routine, c.Param("id"))
+	// .First(&routine, c.Param("id")) retrieves the routine by ID
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": routine,
-	})
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch poses",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"data": routine,
+		})
+	}
 }

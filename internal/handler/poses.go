@@ -13,32 +13,33 @@ func GetAllPosesHandler(c *gin.Context) {
 	db := dbService.DB()
 
 	var poses []types.Pose
-	if err := db.Find(&poses).Error; err != nil {
+	result := db.Find(&poses)
+
+	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to fetch poses",
 		})
-		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"data": poses,
+		})
 	}
-	
-	c.JSON(http.StatusOK, gin.H{
-		"data": poses,
-	})
 }
 
 func GetOnePoseHandler(c *gin.Context) {
 	dbService := database.New()
 	db := dbService.DB()
 
-	var pose types.Pose
-	if err := db.First(&pose, c.Param("id")).Error; err != nil {
-		// First(&pose, c.Param("id")) finds the pose by ID
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Pose not found",
-		})
-		return
-	}
+	var pose []types.Pose
+	result := db.Find(&pose, c.Param("id"))
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": pose,
-	})
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch poses",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"data": pose,
+		})
+	}
 }
